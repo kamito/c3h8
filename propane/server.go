@@ -4,9 +4,12 @@ import (
 	"os"
 	"fmt"
 	"errors"
+	"io/ioutil"
+	"path"
 	"path/filepath"
 	"net/http"
 	"html/template"
+
 	"github.com/codegangsta/cli"
 )
 
@@ -20,6 +23,7 @@ type TemplateParams struct {
 	Path  string
 	Title string
 	Body  string
+	Files []string
 }
 
 type Server struct {
@@ -46,7 +50,8 @@ func (self Server) Handler(w http.ResponseWriter, r *http.Request) {
 
 func (self Server) HandleIndex(w http.ResponseWriter) {
 	params := &TemplateParams{
-		Body: "Hello, C3H8 with index",
+		Files: self.GetFiles(),
+		Title: CurDir(),
 	}
 	self.Render(w, params, []string{"assets/templates/index.html"})
 }
@@ -65,6 +70,26 @@ func (self Server) HandlePage(path string, w http.ResponseWriter) {
 	} else {
 		fmt.Errorf("[ERROR] File not found: %s\n", path)
 		http.Error(w, "File not found", 404)
+	}
+}
+
+func (self Server) GetFiles() []string {
+	curDir := CurDir()
+	isDir, _ := IsDirectory(curDir)
+	if isDir == true {
+		files := []string{}
+		fileInfos, _ := ioutil.ReadDir(curDir)
+		for _, fileInfo := range fileInfos {
+			fileName := (fileInfo).Name()
+			matched, _ := path.Match("*.md", fileName)
+			if matched == true {
+				files = append(files, fileName)
+			}
+		}
+		return files
+	} else {
+		files := []string{"Directory is empty"}
+		return files
 	}
 }
 
@@ -91,8 +116,7 @@ func (self Server) Render(w http.ResponseWriter, params Any, templatePath []stri
 
 func (self Server) CheckFile(path string) (string, error) {
 	err := NoError()
-	current, _ := filepath.Abs(".")
-	fullpath := filepath.Join(current, path)
+	fullpath := filepath.Join(CurDir(), path)
 	stat, _ := os.Stat(fullpath)
 	if stat == nil {
 		err = errors.New("File not found")

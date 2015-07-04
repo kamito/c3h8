@@ -1,5 +1,14 @@
 {{define "content"}}
 <div id="main">
-  {{.Body}}
+  <h1>{{.Title}}</h1>
+  <div id="content">
+    <dl>
+      {{ range .Files }}
+      <dt>
+        <a href="./{{ . }}">{{ . }}</a>
+      </dt>
+      {{ end }}
+    </dl>
+  </div>
 </div>
 {{end}}
