@@ -10,11 +10,14 @@ updatedeps:
 	go get -u github.com/jteeuwen/go-bindata/...
 	go get -u github.com/russross/blackfriday
 
+assets:
+	go-bindata -pkg=$(ASSET_PKG) -o=$(ASSET_BINDATA) ./assets/...
+
 build: assets
 	go build -o $(BINNAME) $(MAINFILE)
 
-assets:
-	go-bindata -pkg=$(ASSET_PKG) -o=$(ASSET_BINDATA) ./assets/...
+run: assets
+	go run $(MAINFILE)
 
 clean:
 	rm $(BINNAME)

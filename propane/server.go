@@ -1,14 +1,14 @@
 package propane
 
 import (
-	"os"
-	"fmt"
 	"errors"
+	"fmt"
+	"html/template"
 	"io/ioutil"
+	"net/http"
+	"os"
 	"path"
 	"path/filepath"
-	"net/http"
-	"html/template"
 
 	"github.com/codegangsta/cli"
 )
@@ -31,9 +31,9 @@ type Server struct {
 	Port int
 }
 
-
 func (self Server) Run() {
 	bindAddr := fmt.Sprint(self.Host) + ":" + fmt.Sprint(self.Port)
+	fmt.Println(fmt.Sprint(" [INFO] Start server with ", bindAddr))
 	http.HandleFunc("/", self.Handler)
 	http.ListenAndServe(bindAddr, nil)
 }
@@ -42,34 +42,65 @@ func (self Server) Handler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL
 	path := url.Path
 	if path == "/" {
-		self.HandleIndex(w)
+		self.HandleIndex(r, w)
 	} else {
-		self.HandlePage(path, w)
+		self.HandlePage(r, w)
 	}
 }
 
-func (self Server) HandleIndex(w http.ResponseWriter) {
+func (self Server) HandleIndex(r *http.Request, w http.ResponseWriter) {
 	params := &TemplateParams{
 		Files: self.GetFiles(),
 		Title: CurDir(),
 	}
-	self.Render(w, params, []string{"assets/templates/index.html"})
+	self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/index.html"})
 }
 
-func (self Server) HandlePage(path string, w http.ResponseWriter) {
+func (self Server) HandlePage(r *http.Request, w http.ResponseWriter) {
+	url := r.URL
+	path := url.Path
 	fullpath, err := self.CheckFile(path)
+	v := url.Query()
 	if err == nil {
 		fmt.Printf(" [INFO] %s\n", path)
-		markdown := new(Markdown)
-		output := markdown.Render(fullpath)
-		params := &TemplateParams{
-			Path: path,
-			Body: output,
+		remarkFlag := v.Get("remark")
+		if remarkFlag != "" {
+			self.HandlePageRemark(path, fullpath, r, w)
+		} else {
+			self.HandlePageMarkdown(path, fullpath, r, w)
 		}
-		self.Render(w, params, []string{"assets/templates/page.html"})
 	} else {
 		fmt.Errorf("[ERROR] File not found: %s\n", path)
 		http.Error(w, "File not found", 404)
+	}
+}
+
+func (self Server) HandlePageMarkdown(path string, fullpath string, r *http.Request, w http.ResponseWriter) {
+	markdown := new(Markdown)
+	output := markdown.Render(fullpath)
+	params := &TemplateParams{
+		Path: path,
+		Body: output,
+	}
+	self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/page.html"})
+}
+
+func (self Server) HandlePageRemark(path string, fullpath string, r *http.Request, w http.ResponseWriter) {
+	md := new(Markdown)
+	output := string(md.ReadFile(fullpath))
+	params := &TemplateParams{
+		Path: path,
+		Body: output,
+	}
+	// Load user template
+	userTemplatePath := filepath.Join(CurDir(), "remark.html")
+	stat, _ := os.Stat(userTemplatePath)
+	if stat != nil {
+		t := template.New("").Funcs(self.Helpers())
+		t, _ = t.ParseFiles(userTemplatePath)
+		t.ExecuteTemplate(w, "remark", params)
+	} else {
+		self.Render(w, params, []string{"assets/templates/page_remark.html"})
 	}
 }
 
@@ -101,8 +132,7 @@ func (self Server) Helpers() template.FuncMap {
 	}
 }
 
-func (self Server) Render(w http.ResponseWriter, params Any, templatePath []string) {
-	templates := append([]string{"assets/templates/layouts.html"}, templatePath...)
+func (self Server) Render(w http.ResponseWriter, params Any, templates []string) {
 	t := template.New("").Funcs(self.Helpers())
 	for _, path := range templates {
 		tmpl, err := Asset(path)
