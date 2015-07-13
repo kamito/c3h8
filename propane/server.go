@@ -41,10 +41,10 @@ func (self Server) Run() {
 func (self Server) Handler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL
 	path := url.Path
-	if self.ServedFile(path, w, r) != true {
-		if path == "/" {
-			self.HandleIndex(r, w)
-		} else {
+	if path == "/" {
+		self.HandleIndex(r, w)
+	} else {
+		if self.ServedFile(path, w, r) != true {
 			self.HandlePage(r, w)
 		}
 	}
@@ -66,7 +66,7 @@ func (self Server) ServedFile(urlPath string, w http.ResponseWriter, r *http.Req
 		fileName := (fileInfo).Name()
 		matched, _ := path.Match("*.md", fileName)
 		if matched != true {
-			fmt.Printf(" [INFO] %s", urlPath)
+			fmt.Printf(" [INFO] %s\n", urlPath)
 			http.ServeFile(w, r, fullpath)
 			return true
 		}
