@@ -1,11 +1,11 @@
 package propane
 
 import (
-	"os"
 	"io/ioutil"
-	"github.com/russross/blackfriday"
+	"os"
+	// "github.com/russross/blackfriday"
+	"github.com/shurcooL/github_flavored_markdown"
 )
-
 
 type Markdown struct {
 	Source  []byte
@@ -14,7 +14,8 @@ type Markdown struct {
 
 func (self Markdown) Render(path string) string {
 	input := self.ReadFile(path)
-	output := blackfriday.MarkdownBasic(input)
+	// output := blackfriday.MarkdownBasic(input)
+	output := github_flavored_markdown.Markdown(input)
 	return string(output)
 }
 

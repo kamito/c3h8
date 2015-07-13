@@ -1,8 +1,6 @@
 {{define "content"}}
-<div id="main">
-  <h1>{{.Title}}</h1>
-  <div id="content">
-    {{.Body|htmlsafe}}
-  </div>
+<div id="content">
+  {{.Body|htmlsafe}}
 </div>
+<div id="to_remark"><a href="?remark=true">Re</a></div>
 {{end}}

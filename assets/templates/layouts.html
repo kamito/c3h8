@@ -1,10 +1,58 @@
 {{define "layouts"}}<!doctype html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>C3H8</title>
+    <style type="text/css">
+     body {
+       text-align: center;
+       font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+       font-size: 10pt;
+     }
+     div#main {
+       width: 720px;
+       margin-left: auto;
+       margin-right: auto;
+       margin-bottom: 80px;
+       text-align: left;
+     }
+     div#main > h1 {}
+     div#main > div#content {}
+     div#main > div#content img {
+       max-width: 100%;
+     }
+     div#main > div#content > table {
+       border-collapse: collapse;
+     }
+     div#main > div#content > table > thead > tr > th,
+     div#main > div#content > table > tbody > tr > td {
+       border: 1px solid #CCCCCC;
+       padding: 6px 10px;
+     }
+     div#main > div#content > pre {
+       width: 100%;
+       box-sizing: border-box;
+       padding: 1em;
+       background-color: #F0F0F0;
+       font-size: 90%;
+       overflow: auto;
+     }
+     div#main > div#content > pre > code {
+       white-space: pre;
+       font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
+     }
+     div#to_remark {
+       position: fixed;
+       top: 10px;
+       right: 20px;
+     }
+    </style>
   </head>
   <body>
-    {{template "content" .}}
+    <div id="main">
+      <h1>{{.Title}}</h1>
+      {{template "content" .}}
+    </div>
   </body>
 </html>
 {{end}}
