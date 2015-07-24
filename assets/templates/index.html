@@ -1,9 +1,17 @@
+{{define "page_js"}}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript" src="/assets/static/index.js"></script>
+{{end}}
+{{define "page_css"}}{{end}}
 {{define "content"}}
 <div id="content">
+  <div class="searchArea">
+    <input type="text" id="search_field" placeholder="Search content by title or filename" />
+  </div>
   <dl class="list">
     {{ range .Files }}
     <dt>
-      <a href="./{{ .Path }}">{{ .Path }}</a>
+      <a href="./{{ .Path }}" class="link">{{ .Path }}</a>
       <span class="title">{{ .Title }}</span>
     </dt>
     {{ end }}

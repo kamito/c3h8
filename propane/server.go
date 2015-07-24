@@ -2,6 +2,7 @@ package propane
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"html/template"
@@ -10,6 +11,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/codegangsta/cli"
 )
@@ -65,8 +68,16 @@ func (self Server) ServedFile(urlPath string, w http.ResponseWriter, r *http.Req
 	} else {
 		fileInfo, _ := os.Stat(fullpath)
 		if fileInfo == nil {
-			http.Error(w, "File not found", 404)
-			return true
+			targetPath := strings.Replace(urlPath, "/", "", 1)
+			bin, err := Asset(targetPath)
+			if err == nil {
+				fmt.Printf(" [INFO] %s\n", urlPath)
+				http.ServeContent(w, r, urlPath, time.Now(), bytes.NewReader(bin))
+				return true
+			} else {
+				http.Error(w, "File not found", 404)
+				return true
+			}
 		}
 
 		fileName := (fileInfo).Name()

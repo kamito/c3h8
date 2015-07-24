@@ -1,0 +1,58 @@
+body {
+    text-align: center;
+    font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    font-size: 10pt;
+}
+div#main {
+    width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 80px;
+    text-align: left;
+}
+div#main > h1 {}
+div#main > div#content {}
+div#main > div#content > dl.list {}
+div#main > div#content > dl.list > dt {}
+div#main > div#content > dl.list > dt span.title {
+    color: #666666;
+}
+div#main > div#content img {
+    max-width: 100%;
+}
+div#main > div#content > table {
+    border-collapse: collapse;
+}
+div#main > div#content > table > thead > tr > th,
+div#main > div#content > table > tbody > tr > td {
+    border: 1px solid #CCCCCC;
+    padding: 6px 10px;
+}
+div#main code {
+    white-space: pre;
+    font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
+    background-color: #F0F0F0;
+}
+div#main > div#content > pre {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1em;
+    font-size: 90%;
+    overflow: auto;
+    background-color: #F0F0F0;
+}
+div#to_remark {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+}
+
+.searchArea {
+    margin-bottom: 40px;
+}
+.searchArea > input {
+    width: 100%;
+    font-size: 140%;
+    padding: 6px 10px;
+    border: 1px solid #AAAAAA;
+}
