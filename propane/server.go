@@ -75,8 +75,9 @@ func (self Server) ServedFile(urlPath string, w http.ResponseWriter, r *http.Req
 }
 
 func (self Server) HandleIndex(r *http.Request, w http.ResponseWriter) {
+	files := []string{}
 	params := &TemplateParams{
-		Files: self.GetFiles(),
+		Files: self.GetFiles("/", files),
 		Title: CurDir(),
 	}
 	self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/index.html"})
@@ -130,17 +131,21 @@ func (self Server) HandlePageRemark(path string, fullpath string, r *http.Reques
 	}
 }
 
-func (self Server) GetFiles() []string {
-	curDir := CurDir()
-	isDir, _ := IsDirectory(curDir)
+func (self Server) GetFiles(targetPath string, files []string) []string {
+	dir := filepath.Join(CurDir(), targetPath)
+	isDir, _ := IsDirectory(dir)
 	if isDir == true {
-		files := []string{}
-		fileInfos, _ := ioutil.ReadDir(curDir)
+		fileInfos, _ := ioutil.ReadDir(dir)
 		for _, fileInfo := range fileInfos {
 			fileName := (fileInfo).Name()
-			matched, _ := path.Match("*.md", fileName)
-			if matched == true {
-				files = append(files, fileName)
+			newPath := filepath.Join(targetPath, fileName)
+			if fileInfo.IsDir() == true {
+				files = self.GetFiles(newPath, files)
+			} else {
+				matched, _ := path.Match("*.md", fileName)
+				if matched == true {
+					files = append(files, newPath)
+				}
 			}
 		}
 		return files
