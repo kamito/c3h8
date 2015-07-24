@@ -1,9 +1,10 @@
 {{define "content"}}
 <div id="content">
-  <dl>
+  <dl class="list">
     {{ range .Files }}
     <dt>
-      <a href="./{{ . }}">{{ . }}</a>
+      <a href="./{{ .Path }}">{{ .Path }}</a>
+      <span class="title">{{ .Title }}</span>
     </dt>
     {{ end }}
   </dl>

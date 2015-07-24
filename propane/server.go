@@ -1,6 +1,7 @@
 package propane
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"html/template"
@@ -19,16 +20,21 @@ func NoError() error {
 	return nil
 }
 
+type Server struct {
+	Host string
+	Port int
+}
+
+type Memo struct {
+	Path  string
+	Title string
+}
+
 type TemplateParams struct {
 	Path  string
 	Title string
 	Body  string
-	Files []string
-}
-
-type Server struct {
-	Host string
-	Port int
+	Files []Memo
 }
 
 func (self Server) Run() {
@@ -75,7 +81,7 @@ func (self Server) ServedFile(urlPath string, w http.ResponseWriter, r *http.Req
 }
 
 func (self Server) HandleIndex(r *http.Request, w http.ResponseWriter) {
-	files := []string{}
+	files := []Memo{}
 	params := &TemplateParams{
 		Files: self.GetFiles("/", files),
 		Title: CurDir(),
@@ -131,7 +137,7 @@ func (self Server) HandlePageRemark(path string, fullpath string, r *http.Reques
 	}
 }
 
-func (self Server) GetFiles(targetPath string, files []string) []string {
+func (self Server) GetFiles(targetPath string, files []Memo) []Memo {
 	dir := filepath.Join(CurDir(), targetPath)
 	isDir, _ := IsDirectory(dir)
 	if isDir == true {
@@ -144,15 +150,35 @@ func (self Server) GetFiles(targetPath string, files []string) []string {
 			} else {
 				matched, _ := path.Match("*.md", fileName)
 				if matched == true {
-					files = append(files, newPath)
+					title := self.GetTitle(newPath)
+					memo := Memo{Path: newPath, Title: title}
+					files = append(files, memo)
 				}
 			}
 		}
 		return files
 	} else {
-		files := []string{"Directory is empty"}
+		emptyMemo := Memo{Title: "Directory is empty", Path: targetPath}
+		files := []Memo{emptyMemo}
 		return files
 	}
+}
+
+func (self Server) GetTitle(targetPath string) string {
+	filePath := filepath.Join(CurDir(), targetPath)
+	f, err := os.Open(filePath)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	scanner.Scan()
+	line := scanner.Text()
+	if err := scanner.Err(); err != nil {
+		return ""
+	}
+	return line
 }
 
 func (self Server) Helpers() template.FuncMap {
