@@ -9,12 +9,12 @@
 To install, use `go get`:
 
 ```bash
-$ go get -d github.com/Shinichirow KAMITO/c3h8
+$ go get -d github.com/kamito/c3h8
 ```
 
 ## Contribution
 
-1. Fork ([https://github.com/Shinichirow KAMITO/c3h8/fork](https://github.com/Shinichirow KAMITO/c3h8/fork))
+1. Fork ([https://github.com/kamito/c3h8/fork](https://github.com/kamito/c3h8/fork))
 1. Create a feature branch
 1. Commit your changes
 1. Rebase your local changes against the master branch
@@ -24,4 +24,4 @@ $ go get -d github.com/Shinichirow KAMITO/c3h8
 
 ## Author
 
-[Shinichirow KAMITO](https://github.com/Shinichirow KAMITO)
+[@kamito](https://github.com/kamito)
