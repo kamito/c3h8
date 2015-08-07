@@ -107,9 +107,9 @@ func (self Server) HandlePage(r *http.Request, w http.ResponseWriter) {
 	v := url.Query()
 	if err == nil {
 		fmt.Printf(" [INFO] %s\n", path)
-		remarkFlag := v.Get("remark")
-		if remarkFlag != "" {
-			self.HandlePageRemark(path, fullpath, r, w)
+		localFlag := v.Get("local")
+		if localFlag != "" {
+			self.HandlePageLocal(path, fullpath, r, w, localFlag)
 		} else {
 			self.HandlePageMarkdown(path, fullpath, r, w)
 		}
@@ -129,22 +129,24 @@ func (self Server) HandlePageMarkdown(path string, fullpath string, r *http.Requ
 	self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/page.html"})
 }
 
-func (self Server) HandlePageRemark(path string, fullpath string, r *http.Request, w http.ResponseWriter) {
+func (self Server) HandlePageLocal(path string, fullpath string, r *http.Request, w http.ResponseWriter, localFlag string) {
 	md := new(Markdown)
 	output := string(md.ReadFile(fullpath))
+	fmt.Println(output)
 	params := &TemplateParams{
 		Path: path,
 		Body: output,
 	}
 	// Load user template
-	userTemplatePath := filepath.Join(CurDir(), "remark.html")
+	templateName := localFlag + ".html"
+	userTemplatePath := filepath.Join(CurDir(), templateName)
 	stat, _ := os.Stat(userTemplatePath)
 	if stat != nil {
 		t := template.New("").Funcs(self.Helpers())
 		t, _ = t.ParseFiles(userTemplatePath)
-		t.ExecuteTemplate(w, "remark", params)
+		t.ExecuteTemplate(w, "html", params)
 	} else {
-		self.Render(w, params, []string{"assets/templates/page_remark.html"})
+		self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/page.html"})
 	}
 }
 
@@ -196,6 +198,9 @@ func (self Server) Helpers() template.FuncMap {
 	return template.FuncMap{
 		"htmlsafe": func(context string) template.HTML {
 			return template.HTML(context)
+		},
+		"scriptsafe": func(context string) template.JS {
+			return template.JS(context)
 		},
 	}
 }
