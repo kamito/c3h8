@@ -12,7 +12,9 @@ div#main {
 }
 div#main > h1 {}
 div#main > div#content {}
-div#main > div#content > dl.list {}
+div#main > div#content > dl.list {
+    clear: both;
+}
 div#main > div#content > dl.list > dt {}
 div#main > div#content > dl.list > dt span.title {
     color: #666666;
@@ -55,4 +57,21 @@ div#to_remark {
     font-size: 140%;
     padding: 6px 10px;
     border: 1px solid #AAAAAA;
+}
+
+.urlArea > form.url_field_area {
+    margin-top: 1em;
+}
+.urlArea > form.url_field_area > input {
+    width: 100%;
+    font-size: 140%;
+    padding: 6px 10px;
+    border-width: 0px;
+    border-bottom: 1px solid #AAAAAA;
+}
+.urlArea > form.url_field_area > button {
+    font-size: 140%;
+    border-style: none;
+    background-color: transparent;
+    float: right;
 }
