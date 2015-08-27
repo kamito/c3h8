@@ -12,11 +12,16 @@ type Markdown struct {
 	Content string
 }
 
+func (self Markdown) ToHtml(input []byte) string {
+	output := github_flavored_markdown.Markdown(input)
+	return string(output)
+}
+
 func (self Markdown) Render(path string) string {
 	input := self.ReadFile(path)
 	// output := blackfriday.MarkdownBasic(input)
-	output := github_flavored_markdown.Markdown(input)
-	return string(output)
+	output := self.ToHtml(input)
+	return output
 }
 
 func (self Markdown) ReadFile(path string) []byte {

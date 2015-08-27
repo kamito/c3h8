@@ -180,7 +180,13 @@ func (self Server) HandlePageUrl(r *http.Request, w http.ResponseWriter) {
 			fmt.Errorf("[ERROR] File not found: %s\n", mdUrl)
 			http.Error(w, "File not found", 404)
 		} else {
-			output := string(body)
+			output := ""
+			if localFlag != "" {
+				output = string(body)
+			} else {
+				md := new(Markdown)
+				output = md.ToHtml(body)
+			}
 
 			params := &TemplateParams{
 				Path: mdUrl,
