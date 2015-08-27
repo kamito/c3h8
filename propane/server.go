@@ -92,30 +92,44 @@ func (self Server) ServedFile(urlPath string, w http.ResponseWriter, r *http.Req
 }
 
 func (self Server) HandleIndex(r *http.Request, w http.ResponseWriter) {
-	files := []Memo{}
-	params := &TemplateParams{
-		Files: self.GetFiles("/", files),
-		Title: CurDir(),
+	url := r.URL
+	v := url.Query()
+	mdUrl := v.Get("url")
+	if mdUrl == "" {
+		files := []Memo{}
+		params := &TemplateParams{
+			Files: self.GetFiles("/", files),
+			Title: CurDir(),
+		}
+		self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/index.html"})
+	} else {
+		self.HandlePageUrl(r, w)
 	}
-	self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/index.html"})
 }
 
 func (self Server) HandlePage(r *http.Request, w http.ResponseWriter) {
 	url := r.URL
-	path := url.Path
-	fullpath, err := self.CheckFile(path)
 	v := url.Query()
-	if err == nil {
-		fmt.Printf(" [INFO] %s\n", path)
-		localFlag := v.Get("local")
-		if localFlag != "" {
-			self.HandlePageLocal(path, fullpath, r, w, localFlag)
+	mdUrl := v.Get("url")
+	if mdUrl == "" {
+		url := r.URL
+		path := url.Path
+		fullpath, err := self.CheckFile(path)
+		v := url.Query()
+		if err == nil {
+			fmt.Printf(" [INFO] %s\n", path)
+			localFlag := v.Get("local")
+			if localFlag != "" {
+				self.HandlePageLocal(path, fullpath, r, w, localFlag)
+			} else {
+				self.HandlePageMarkdown(path, fullpath, r, w)
+			}
 		} else {
-			self.HandlePageMarkdown(path, fullpath, r, w)
+			fmt.Errorf("[ERROR] File not found: %s\n", path)
+			http.Error(w, "File not found", 404)
 		}
 	} else {
-		fmt.Errorf("[ERROR] File not found: %s\n", path)
-		http.Error(w, "File not found", 404)
+		self.HandlePageUrl(r, w)
 	}
 }
 
@@ -132,7 +146,6 @@ func (self Server) HandlePageMarkdown(path string, fullpath string, r *http.Requ
 func (self Server) HandlePageLocal(path string, fullpath string, r *http.Request, w http.ResponseWriter, localFlag string) {
 	md := new(Markdown)
 	output := string(md.ReadFile(fullpath))
-	fmt.Println(output)
 	params := &TemplateParams{
 		Path: path,
 		Body: output,
@@ -147,6 +160,48 @@ func (self Server) HandlePageLocal(path string, fullpath string, r *http.Request
 		t.ExecuteTemplate(w, "html", params)
 	} else {
 		self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/page.html"})
+	}
+}
+
+func (self Server) HandlePageUrl(r *http.Request, w http.ResponseWriter) {
+	url := r.URL
+	v := url.Query()
+	mdUrl := v.Get("url")
+	localFlag := v.Get("local")
+
+	response, err := http.Get(mdUrl)
+	if err != nil {
+		fmt.Errorf("[ERROR] File not found: %s\n", mdUrl)
+		http.Error(w, "File not found", 404)
+	} else {
+		defer response.Body.Close()
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			fmt.Errorf("[ERROR] File not found: %s\n", mdUrl)
+			http.Error(w, "File not found", 404)
+		} else {
+			output := string(body)
+
+			params := &TemplateParams{
+				Path: mdUrl,
+				Body: output,
+			}
+			if localFlag != "" {
+				// Load user template
+				templateName := localFlag + ".html"
+				userTemplatePath := filepath.Join(CurDir(), templateName)
+				stat, _ := os.Stat(userTemplatePath)
+				if stat != nil {
+					t := template.New("").Funcs(self.Helpers())
+					t, _ = t.ParseFiles(userTemplatePath)
+					t.ExecuteTemplate(w, "html", params)
+				} else {
+					self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/page.html"})
+				}
+			} else {
+				self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/page.html"})
+			}
+		}
 	}
 }
 
