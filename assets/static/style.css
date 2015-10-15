@@ -10,8 +10,38 @@ div#main {
     margin-bottom: 80px;
     text-align: left;
 }
-div#main > h1 {}
 div#main > div#content {}
+div#main > div#content > h1,
+div#main > div#content > h2,
+div#main > div#content > h3,
+div#main > div#content > h4,
+div#main > div#content > h5,
+div#main > div#content > h6 {
+    margin-left: 0px;
+    padding-left: 0px;
+}
+div#main > div#content > h1:before,
+div#main > div#content > h2:before,
+div#main > div#content > h3:before,
+div#main > div#content > h4:before,
+div#main > div#content > h5:before,
+div#main > div#content > h6:before {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 50px;
+    margin: 0px;
+    margin-left: -50px;
+    padding: 0px;
+    text-align: right;
+    letter-spacing: -2px;
+    color: #AAAAAA;
+}
+div#main > div#content > h1:before { content: "#"; }
+div#main > div#content > h2:before { content: "##"; }
+div#main > div#content > h3:before { content: "###"; }
+div#main > div#content > h4:before { content: "####"; }
+div#main > div#content > h5:before { content: "#####"; }
+div#main > div#content > h6:before { content: "######"; }
 div#main > div#content > dl.list {
     clear: both;
 }
