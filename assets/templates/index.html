@@ -8,6 +8,9 @@
   <div class="searchArea">
     <input type="text" id="search_field" placeholder="Search content by title or filename" />
   </div>
+  <div>
+    <a href="?r={{if .ReverseFlg}}{{else}}1{{end}}">reverse</a>
+  </div>
   <dl class="list">
     {{ range .Files }}
     <dt>

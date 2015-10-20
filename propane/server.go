@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"sort"
 
 	"github.com/codegangsta/cli"
 )
@@ -38,7 +39,16 @@ type TemplateParams struct {
 	Title string
 	Body  string
 	Files []Memo
+	ReverseFlg bool
 }
+
+// sort interface for Memo
+type MemoSlice []Memo
+func (m MemoSlice) Len() int           { return len(m) }
+func (m MemoSlice) Less(i, j int) bool { return m[i].Path < m[j].Path }
+func (m MemoSlice) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
+
+
 
 func (self Server) Run() {
 	bindAddr := fmt.Sprint(self.Host) + ":" + fmt.Sprint(self.Port)
@@ -96,10 +106,20 @@ func (self Server) HandleIndex(r *http.Request, w http.ResponseWriter) {
 	v := url.Query()
 	mdUrl := v.Get("url")
 	if mdUrl == "" {
-		files := []Memo{}
+		var files MemoSlice = []Memo{}
+		files = self.GetFiles("/", files)
+		var reverseFlg bool = false
+		if v.Get("r") != "" {
+			reverseFlg = true
+			sort.Sort(files)
+		} else {
+			reverseFlg = false
+			sort.Sort(sort.Reverse(files))
+		}
 		params := &TemplateParams{
-			Files: self.GetFiles("/", files),
+			Files: files,
 			Title: CurDir(),
+			ReverseFlg: reverseFlg,
 		}
 		self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/index.html"})
 	} else {
