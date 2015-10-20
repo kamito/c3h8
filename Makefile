@@ -9,6 +9,7 @@ updatedeps:
 	go get -u github.com/codegangsta/cli
 	go get -u github.com/jteeuwen/go-bindata/...
 	go get -u github.com/russross/blackfriday
+	go get -u github.com/shurcooL/github_flavored_markdown
 
 assets:
 	go-bindata -pkg=$(ASSET_PKG) -o=$(ASSET_BINDATA) ./assets/...
