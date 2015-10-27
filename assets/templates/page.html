@@ -1,6 +1,15 @@
 {{define "page_js"}}{{end}}
 {{define "page_css"}}{{end}}
 {{define "content"}}
+{{ if .HasLocals }}
+<div id="locals">
+  <ul>
+    {{ range .Locals  }}
+    <li><a href="?local={{ . }}">{{ . }}</a></li>
+    {{ end }}
+  </ul>
+</div>
+{{ end }}
 <div id="content">
   {{.Body|htmlsafe}}
 </div>

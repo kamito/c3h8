@@ -39,6 +39,8 @@ type TemplateParams struct {
 	Title string
 	Body  string
 	Files []Memo
+	Locals []string
+	HasLocals bool
 	ReverseFlg bool
 }
 
@@ -120,6 +122,7 @@ func (self Server) HandleIndex(r *http.Request, w http.ResponseWriter) {
 			Files: files,
 			Title: CurDir(),
 			ReverseFlg: reverseFlg,
+			HasLocals: false,
 		}
 		self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/index.html"})
 	} else {
@@ -156,9 +159,12 @@ func (self Server) HandlePage(r *http.Request, w http.ResponseWriter) {
 func (self Server) HandlePageMarkdown(path string, fullpath string, r *http.Request, w http.ResponseWriter) {
 	markdown := new(Markdown)
 	output := markdown.Render(fullpath)
+	locals := self.GetLocals("/")
 	params := &TemplateParams{
 		Path: path,
 		Body: output,
+		Locals: locals,
+		HasLocals: (len(locals) > 0),
 	}
 	self.Render(w, params, []string{"assets/templates/layouts.html", "assets/templates/page.html"})
 }
@@ -169,6 +175,7 @@ func (self Server) HandlePageLocal(path string, fullpath string, r *http.Request
 	params := &TemplateParams{
 		Path: path,
 		Body: output,
+		HasLocals: false,
 	}
 	// Load user template
 	templateName := localFlag + ".html"
@@ -211,6 +218,7 @@ func (self Server) HandlePageUrl(r *http.Request, w http.ResponseWriter) {
 			params := &TemplateParams{
 				Path: mdUrl,
 				Body: output,
+				HasLocals: false,
 			}
 			if localFlag != "" {
 				// Load user template
@@ -273,6 +281,26 @@ func (self Server) GetTitle(targetPath string) string {
 		return ""
 	}
 	return line
+}
+
+func (self Server) GetLocals(targetPath string) []string {
+	locals := []string{}
+	dir := filepath.Join(CurDir(), targetPath)
+	isDir, _ := IsDirectory(dir)
+	if isDir == true {
+		fileInfos, _ := ioutil.ReadDir(dir)
+		for _, fileInfo := range fileInfos {
+			fileName := (fileInfo).Name()
+			if fileInfo.IsDir() != true {
+				matched, _ := path.Match("*.html", fileName)
+				if matched == true {
+					localName := strings.Replace(fileName, ".html", "", -1)
+					locals = append(locals, localName)
+				}
+			}
+		}
+	}
+	return locals
 }
 
 func (self Server) Helpers() template.FuncMap {

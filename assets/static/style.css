@@ -10,6 +10,20 @@ div#main {
     margin-bottom: 80px;
     text-align: left;
 }
+div#main > div#locals {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+div#main > div#locals > ul {
+    margin: 0px;
+    padding: 0px;
+}
+div#main > div#locals > ul > li {
+    display: inline-block;
+    margin: 0px;
+    padding: 0px 5px 0px 0px;
+}
 div#main > div#content {}
 div#main > div#content > h1,
 div#main > div#content > h2,
