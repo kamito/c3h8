@@ -1,7 +1,10 @@
 {{define "page_js"}}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="//cdn.jsdelivr.net/highlight.js/8.9.1/highlight.min.js"></script>
-<script>$("div.highlight pre").each(function(){ hljs.highlightBlock(this) })</script>
+<script>
+  hljs.configure({ tabReplace: '    ' });
+  $("div.highlight pre").each(function(){ hljs.highlightBlock(this) });
+</script>
 {{end}}
 {{define "page_css"}}
 <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/8.9.1/styles/default.min.css">

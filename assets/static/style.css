@@ -46,8 +46,9 @@ div#main > div#content > h6:before {
     margin: 0px;
     margin-left: -50px;
     padding: 0px;
+    padding-right: .2em;
     text-align: right;
-    letter-spacing: -2px;
+    letter-spacing: -0.1em;
     color: #AAAAAA;
 }
 div#main > div#content > h1:before { content: "#"; }
