@@ -80,14 +80,28 @@ div#main code {
     font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
     background-color: #F0F0F0;
 }
-div#main > div#content > pre {
+div#main > div#content > pre,
+.hljs {
     width: 100%;
     box-sizing: border-box;
+    margin: 0px !important;
     padding: 1em;
     font-size: 90%;
     overflow: auto;
-    background-color: #F0F0F0;
+    background-color: #F3F3F3 !important;
 }
+div#main > div#content > div.highlight {
+    border: 1px solid #EBEBEB;
+    border-radius: 2px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+div#main > div#content hr {
+    height: 1px;
+    border: none;
+    border-top: 1px dashed #CCCCCC;
+}
+
 div#to_remark {
     position: fixed;
     top: 10px;
